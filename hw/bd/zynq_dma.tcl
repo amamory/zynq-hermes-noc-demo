@@ -44,6 +44,7 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
+user.org:user:NoC2x2:1.0\
 user.org:user:noc_counter:1.0\
 xilinx.com:ip:axi_dma:7.1\
 xilinx.com:ip:smartconnect:1.0\
@@ -1014,21 +1015,42 @@ proc create_root_design { parentCell } {
 
   # Create ports
 
-  # Create instance: noc_counter_0, and set properties
-  set noc_counter_0 [ create_bd_cell -type ip -vlnv user.org:user:noc_counter:1.0 noc_counter_0 ]
+  # Create instance: NoC2x2_0, and set properties
+  set NoC2x2_0 [ create_bd_cell -type ip -vlnv user.org:user:NoC2x2:1.0 NoC2x2_0 ]
+
+  # Create instance: noc_counter_0001, and set properties
+  set noc_counter_0001 [ create_bd_cell -type ip -vlnv user.org:user:noc_counter:1.0 noc_counter_0001 ]
+
+  # Create instance: noc_counter_0100, and set properties
+  set noc_counter_0100 [ create_bd_cell -type ip -vlnv user.org:user:noc_counter:1.0 noc_counter_0100 ]
+  set_property -dict [ list \
+   CONFIG.INC_VALUE {2} \
+ ] $noc_counter_0100
+
+  # Create instance: noc_counter_0101, and set properties
+  set noc_counter_0101 [ create_bd_cell -type ip -vlnv user.org:user:noc_counter:1.0 noc_counter_0101 ]
+  set_property -dict [ list \
+   CONFIG.INC_VALUE {3} \
+ ] $noc_counter_0101
 
   # Create instance: zynq
   create_hier_cell_zynq [current_bd_instance .] zynq
 
   # Create interface connections
-  connect_bd_intf_net -intf_net noc_counter_0_m [get_bd_intf_pins noc_counter_0/m] [get_bd_intf_pins zynq/S_AXIS_DMA]
+  connect_bd_intf_net -intf_net NoC2x2_0_L_m_0001 [get_bd_intf_pins NoC2x2_0/L_m_0001] [get_bd_intf_pins noc_counter_0001/s]
+  connect_bd_intf_net -intf_net NoC2x2_0_L_m_0100 [get_bd_intf_pins NoC2x2_0/L_m_0100] [get_bd_intf_pins noc_counter_0100/s]
+  connect_bd_intf_net -intf_net NoC2x2_0_L_m_0101 [get_bd_intf_pins NoC2x2_0/L_m_0101] [get_bd_intf_pins noc_counter_0101/s]
+  connect_bd_intf_net -intf_net S_AXIS_DMA_1 [get_bd_intf_pins NoC2x2_0/L_m_0000] [get_bd_intf_pins zynq/S_AXIS_DMA]
+  connect_bd_intf_net -intf_net noc_counter_0001_m [get_bd_intf_pins NoC2x2_0/L_s_0001] [get_bd_intf_pins noc_counter_0001/m]
+  connect_bd_intf_net -intf_net noc_counter_0100_m [get_bd_intf_pins NoC2x2_0/L_s_0100] [get_bd_intf_pins noc_counter_0100/m]
+  connect_bd_intf_net -intf_net noc_counter_0101_m [get_bd_intf_pins NoC2x2_0/L_s_0101] [get_bd_intf_pins noc_counter_0101/m]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins zynq/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins zynq/FIXED_IO]
-  connect_bd_intf_net -intf_net zynq_M_AXIS_DMA [get_bd_intf_pins noc_counter_0/s] [get_bd_intf_pins zynq/M_AXIS_DMA]
+  connect_bd_intf_net -intf_net zynq_M_AXIS_DMA [get_bd_intf_pins NoC2x2_0/L_s_0000] [get_bd_intf_pins zynq/M_AXIS_DMA]
 
   # Create port connections
-  connect_bd_net -net zynq_clock [get_bd_pins noc_counter_0/clock] [get_bd_pins zynq/clock]
-  connect_bd_net -net zynq_reset_n [get_bd_pins noc_counter_0/reset_n] [get_bd_pins zynq/reset_n]
+  connect_bd_net -net zynq_clock [get_bd_pins NoC2x2_0/clock] [get_bd_pins noc_counter_0001/clock] [get_bd_pins noc_counter_0100/clock] [get_bd_pins noc_counter_0101/clock] [get_bd_pins zynq/clock]
+  connect_bd_net -net zynq_reset_n [get_bd_pins NoC2x2_0/reset_n] [get_bd_pins noc_counter_0001/reset_n] [get_bd_pins noc_counter_0100/reset_n] [get_bd_pins noc_counter_0101/reset_n] [get_bd_pins zynq/reset_n]
 
   # Create address segments
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces zynq/axi_dma_0/Data_MM2S] [get_bd_addr_segs zynq/processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_processing_system7_0_HP0_DDR_LOWOCM
