@@ -1,9 +1,7 @@
 /*
- * hermes_test.c
- *
- *  Created on: 7 de jun de 2020
- *      Author: lsa
+ * simple DMA app to the the noc_counter IP in isolation, withou the NoC
  */
+
 
 #include "xaxidma.h"
 #include "xparameters.h"
@@ -14,7 +12,7 @@
 //#include "platform.h"
 
 // Hermes packet size, including the flits for header and size
-#define PACKET_SIZE 4
+#define PACKET_SIZE 6
 
 // PS is receiving from the device
 #define RX_INTR_ID		XPAR_FABRIC_ZYNQ_AXI_DMA_0_MM2S_INTROUT_INTR
@@ -29,7 +27,9 @@ XScuGic IntcInstance;
 XAxiDma myDma;
 
 // data buffers
-u32 hermes_pkg[] = {0x00000101,0x0002,0x0001,0x0002};
+//u32 hermes_pkg[] = {0x00000101,0x0002,0x0001,0x0002};
+u32 hermes_pkg[] = {0x00000101, 0x00000004, 0x00000001, 0x44444444, 0x55555555, 0x66666666};
+
 u32 hermes_pkg_in[10] = {0};
 
 // Flags interrupt handlers use to notify the application context the events.
