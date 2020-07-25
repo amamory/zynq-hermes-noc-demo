@@ -1,13 +1,13 @@
 # Vivado Hermes NoC Demo
 
-This repo contains scripts to recreate Hermes NoC Demo project. It consists of a 2x2 NoC connected to Zynq and 3 toy hardware accelerators.
+This repo contains scripts to recreate [Hermes network-on-chip](https://www.sciencedirect.com/science/article/abs/pii/S0167926004000185) Demo project. It consists of a 2x2 NoC connected to Zynq and 3 toy hardware accelerators.
 The project is setup for Zedboard, although it would be easy to change to other boards assuming you have some basic TCL skills.
 
 # Module/IP design
 
 This module has a 2x2 mesh NoC with the following IPs connected to it:
  - address 0x0000) Zynq
- - address 0x0000) Counter + 1
+ - address 0x0001) Counter + 1
  - address 0x0100) Counter + 2
  - address 0x0101) Counter + 3
 
