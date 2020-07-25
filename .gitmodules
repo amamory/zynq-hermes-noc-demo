@@ -1,0 +1,3 @@
+[submodule "hw/ips/axi_noc_counter_ip"]
+	path = hw/ips/axi_noc_counter_ip
+	url = https://github.com/amamory/axi_noc_counter_ip.git
