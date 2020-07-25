@@ -1,32 +1,39 @@
-# Vivado MODULE NAME
+# Vivado Hermes NoC Demo
 
-This repo contains scripts to recreate **DESCRIBE THE MODULE HERE**. The project is setup for Zedboard, although it would be easy to change to other boards assuming you have some basic TCL skills.
+This repo contains scripts to recreate Hermes NoC Demo project. It consists of a 2x2 NoC connected to Zynq and 3 toy hardware accelerators.
+The project is setup for Zedboard, although it would be easy to change to other boards assuming you have some basic TCL skills.
 
 # Module/IP design
 
-Describe here your module interface and protocols.
+This module has a 2x2 mesh NoC with the following IPs connected to it:
+ - address 0x0000) Zynq
+ - address 0x0000) Counter + 1
+ - address 0x0100) Counter + 2
+ - address 0x0101) Counter + 3
 
-![Place here a nice picture of your design](my-awesome-module.png)
+![2x2 NoC with counters](noc2x2.png)
 
-# How to use this repository
+The test software called **noc_test** sends packets from the Zynq to each of the counters
+and each counter reply with the packet payload incremented by 1, 2, or 3, depending on the 
+target counter. The software compares the received packet with the expected one to determine
+if it has a match or not.
 
-These scripts presented here are quite reusable if you keep the same dir structure. It should be useful for other Vivado/SDK projects with minor efforts. For this reason this repository is a template. Just click in **Use this Template** button to replicate it for your own project.
+# How to download it
 
-In command line, create an empty repository called *<your-reponame>* in github and follow these steps to use it as a template:
+This repository might have custom IPs included as git submodules. Thus, the following command is required to download all its dependencies.
 
 ```
-mkdir <my-new-project>
-cd <my-new-project>
-git clone https://github.com/amamory/vivado-base-project.git .
-rm -rf .git
-git init
-git remote set-url origin https://github.com/<your-username>/<your-reponame>
-git add * .gitignore
-git commit -m "my initial commit"
-git push origin master
+git clone --recursive https://github.com/amamory/<repo-name>.git
 ```
 
-Each directory has instructions related to the kind of file you have to place in them.
+If you already cloned the repository without `--recursive`, then run the following command to download all the submodules.
+
+```
+git submodule update --init --recursive
+```
+
+Refer to this [tutorial](https://www.vogella.com/tutorials/GitSubmodules/article.html) to learn how to manage submodules.
+
 
 # How to run it
 
