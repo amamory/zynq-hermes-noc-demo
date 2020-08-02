@@ -17,7 +17,7 @@ if { ![info exists env(VIVADO_TOP_NAME)] } {
 # check the command 'launch_runs' learn more
 # the valid steps are:
 #  - opt_design, power_opt_design, place_design, route_design, phys_opt_design, and write_bitstream
-set systesis_step opt_design
+set systesis_step write_bitstream
 
 # Generate bitstream
 open_project ./vivado/${design_name}/${design_name}.xpr
