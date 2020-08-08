@@ -125,6 +125,7 @@ proc create_hier_cell_zynq { parentCell nameHier } {
 
   # Create pins
   create_bd_pin -dir O -type clk clock
+  create_bd_pin -dir O -from 1 -to 0 dout
   create_bd_pin -dir O -from 0 -to 0 -type rst reset_n
 
   # Create instance: axi_dma_0, and set properties
@@ -974,7 +975,10 @@ proc create_hier_cell_zynq { parentCell nameHier } {
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_50M/ext_reset_in]
   connect_bd_net -net rst_ps7_0_50M_interconnect_aresetn [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins rst_ps7_0_50M/interconnect_aresetn]
   connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins reset_n] [get_bd_pins axi_dma_0/axi_resetn] [get_bd_pins axi_smc/aresetn] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
-  connect_bd_net -net xlconcat_0_dout [get_bd_pins processing_system7_0/IRQ_F2P] [get_bd_pins xlconcat_0/dout]
+  connect_bd_net -net xlconcat_0_dout [get_bd_pins dout] [get_bd_pins processing_system7_0/IRQ_F2P] [get_bd_pins xlconcat_0/dout]
+  set_property -dict [ list \
+HDL_ATTRIBUTE.DEBUG {true} \
+ ] [get_bd_nets xlconcat_0_dout]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -1033,8 +1037,12 @@ proc create_root_design { parentCell } {
   # Create instance: system_ila_0, and set properties
   set system_ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:system_ila:1.1 system_ila_0 ]
   set_property -dict [ list \
-   CONFIG.C_MON_TYPE {INTERFACE} \
-   CONFIG.C_NUM_MONITOR_SLOTS {4} \
+   CONFIG.C_BRAM_CNT {4.5} \
+   CONFIG.C_MON_TYPE {MIX} \
+   CONFIG.C_NUM_MONITOR_SLOTS {5} \
+   CONFIG.C_PROBE0_WIDTH {2} \
+   CONFIG.C_PROBE_WIDTH_PROPAGATION {MANUAL} \
+   CONFIG.C_SLOT {4} \
    CONFIG.C_SLOT_0_APC_EN {0} \
    CONFIG.C_SLOT_0_AXI_DATA_SEL {1} \
    CONFIG.C_SLOT_0_AXI_TRIG_SEL {1} \
@@ -1051,6 +1059,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_SLOT_3_AXI_DATA_SEL {1} \
    CONFIG.C_SLOT_3_AXI_TRIG_SEL {1} \
    CONFIG.C_SLOT_3_INTF_TYPE {xilinx.com:interface:axis_rtl:1.0} \
+   CONFIG.C_SLOT_4_INTF_TYPE {xilinx.com:interface:axis_rtl:1.0} \
  ] $system_ila_0
 
   # Create instance: xlconstant_0, and set properties
@@ -1070,35 +1079,25 @@ proc create_root_design { parentCell } {
   create_hier_cell_zynq [current_bd_instance .] zynq
 
   # Create interface connections
-  connect_bd_intf_net -intf_net RouterCC_0_L_m [get_bd_intf_pins RouterCC_0/L_m] [get_bd_intf_pins zynq/S_AXIS_DMA]
-connect_bd_intf_net -intf_net [get_bd_intf_nets RouterCC_0_L_m] [get_bd_intf_pins RouterCC_0/L_m] [get_bd_intf_pins system_ila_0/SLOT_0_AXIS]
-  set_property -dict [ list \
-HDL_ATTRIBUTE.DEBUG {true} \
- ] [get_bd_intf_nets RouterCC_0_L_m]
   connect_bd_intf_net -intf_net RouterCC_0_N_m [get_bd_intf_pins RouterCC_0/N_m] [get_bd_intf_pins last_gen_ip_0/s]
-connect_bd_intf_net -intf_net [get_bd_intf_nets RouterCC_0_N_m] [get_bd_intf_pins RouterCC_0/N_m] [get_bd_intf_pins system_ila_0/SLOT_3_AXIS]
-  set_property -dict [ list \
-HDL_ATTRIBUTE.DEBUG {true} \
- ] [get_bd_intf_nets RouterCC_0_N_m]
+connect_bd_intf_net -intf_net [get_bd_intf_nets RouterCC_0_N_m] [get_bd_intf_pins RouterCC_0/N_m] [get_bd_intf_pins system_ila_0/SLOT_1_AXIS]
+  connect_bd_intf_net -intf_net S_AXIS_DMA_1 [get_bd_intf_pins RouterCC_0/L_m] [get_bd_intf_pins zynq/S_AXIS_DMA]
+connect_bd_intf_net -intf_net [get_bd_intf_nets S_AXIS_DMA_1] [get_bd_intf_pins RouterCC_0/L_m] [get_bd_intf_pins system_ila_0/SLOT_4_AXIS]
   connect_bd_intf_net -intf_net last_gen_ip_0_m [get_bd_intf_pins last_gen_ip_0/m] [get_bd_intf_pins noc_counter_0001/s]
+connect_bd_intf_net -intf_net [get_bd_intf_nets last_gen_ip_0_m] [get_bd_intf_pins last_gen_ip_0/m] [get_bd_intf_pins system_ila_0/SLOT_2_AXIS]
   connect_bd_intf_net -intf_net noc_counter_0001_m [get_bd_intf_pins RouterCC_0/N_s] [get_bd_intf_pins noc_counter_0001/m]
-connect_bd_intf_net -intf_net [get_bd_intf_nets noc_counter_0001_m] [get_bd_intf_pins RouterCC_0/N_s] [get_bd_intf_pins system_ila_0/SLOT_2_AXIS]
-  set_property -dict [ list \
-HDL_ATTRIBUTE.DEBUG {true} \
- ] [get_bd_intf_nets noc_counter_0001_m]
+connect_bd_intf_net -intf_net [get_bd_intf_nets noc_counter_0001_m] [get_bd_intf_pins RouterCC_0/N_s] [get_bd_intf_pins system_ila_0/SLOT_3_AXIS]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins zynq/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins zynq/FIXED_IO]
   connect_bd_intf_net -intf_net zynq_M_AXIS_DMA [get_bd_intf_pins RouterCC_0/L_s] [get_bd_intf_pins zynq/M_AXIS_DMA]
-connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_M_AXIS_DMA] [get_bd_intf_pins RouterCC_0/L_s] [get_bd_intf_pins system_ila_0/SLOT_1_AXIS]
-  set_property -dict [ list \
-HDL_ATTRIBUTE.DEBUG {true} \
- ] [get_bd_intf_nets zynq_M_AXIS_DMA]
+connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_M_AXIS_DMA] [get_bd_intf_pins RouterCC_0/L_s] [get_bd_intf_pins system_ila_0/SLOT_0_AXIS]
 
   # Create port connections
   connect_bd_net -net xlconstant_0_dout [get_bd_pins RouterCC_0/readyE_i] [get_bd_pins RouterCC_0/readyS_i] [get_bd_pins RouterCC_0/readyW_i] [get_bd_pins RouterCC_0/validE_i] [get_bd_pins RouterCC_0/validS_i] [get_bd_pins RouterCC_0/validW_i] [get_bd_pins xlconstant_0/dout]
   connect_bd_net -net xlconstant_1_dout [get_bd_pins RouterCC_0/dataE_i] [get_bd_pins RouterCC_0/dataS_i] [get_bd_pins RouterCC_0/dataW_i] [get_bd_pins xlconstant_1/dout]
   connect_bd_net -net zynq_clock [get_bd_pins RouterCC_0/clock] [get_bd_pins last_gen_ip_0/clock] [get_bd_pins noc_counter_0001/clock] [get_bd_pins system_ila_0/clk] [get_bd_pins zynq/clock]
-  connect_bd_net -net zynq_reset_n [get_bd_pins RouterCC_0/reset] [get_bd_pins last_gen_ip_0/reset] [get_bd_pins noc_counter_0001/reset_n] [get_bd_pins system_ila_0/resetn] [get_bd_pins zynq/reset_n]
+  connect_bd_net -net zynq_dout [get_bd_pins system_ila_0/probe0] [get_bd_pins zynq/dout]
+  connect_bd_net -net zynq_reset_n [get_bd_pins RouterCC_0/reset_n] [get_bd_pins last_gen_ip_0/reset_n] [get_bd_pins noc_counter_0001/reset_n] [get_bd_pins system_ila_0/resetn] [get_bd_pins zynq/reset_n]
 
   # Create address segments
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces zynq/axi_dma_0/Data_MM2S] [get_bd_addr_segs zynq/processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_processing_system7_0_HP0_DDR_LOWOCM
