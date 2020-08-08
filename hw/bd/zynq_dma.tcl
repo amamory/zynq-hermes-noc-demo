@@ -1,6 +1,6 @@
 
 ################################################################
-# This is a generated script based on design: zynq_counter
+# This is a generated script based on design: zynq_dma
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -35,7 +35,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source zynq_counter_script.tcl
+# source zynq_dma_script.tcl
 
 set bCheckIPsPassed 1
 ##################################################################
@@ -1024,7 +1024,6 @@ proc create_root_design { parentCell } {
    CONFIG.C_BRAM_CNT {4} \
    CONFIG.C_MON_TYPE {INTERFACE} \
    CONFIG.C_NUM_MONITOR_SLOTS {2} \
-   CONFIG.C_SLOT {1} \
    CONFIG.C_SLOT_0_APC_EN {0} \
    CONFIG.C_SLOT_0_AXI_DATA_SEL {1} \
    CONFIG.C_SLOT_0_AXI_TRIG_SEL {1} \
@@ -1047,18 +1046,12 @@ proc create_root_design { parentCell } {
   create_hier_cell_zynq [current_bd_instance .] zynq
 
   # Create interface connections
-  connect_bd_intf_net -intf_net RouterCC_0_L_m [get_bd_intf_pins noc_counter_0001/m] [get_bd_intf_pins zynq/S_AXIS_DMA]
-connect_bd_intf_net -intf_net [get_bd_intf_nets RouterCC_0_L_m] [get_bd_intf_pins system_ila_0/SLOT_0_AXIS] [get_bd_intf_pins zynq/S_AXIS_DMA]
-  set_property -dict [ list \
-HDL_ATTRIBUTE.DEBUG {true} \
- ] [get_bd_intf_nets RouterCC_0_L_m]
+  connect_bd_intf_net -intf_net noc_counter_0001_m [get_bd_intf_pins noc_counter_0001/m] [get_bd_intf_pins zynq/S_AXIS_DMA]
+connect_bd_intf_net -intf_net [get_bd_intf_nets noc_counter_0001_m] [get_bd_intf_pins system_ila_0/SLOT_1_AXIS] [get_bd_intf_pins zynq/S_AXIS_DMA]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins zynq/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins zynq/FIXED_IO]
   connect_bd_intf_net -intf_net zynq_M_AXIS_DMA [get_bd_intf_pins noc_counter_0001/s] [get_bd_intf_pins zynq/M_AXIS_DMA]
-connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_M_AXIS_DMA] [get_bd_intf_pins system_ila_0/SLOT_1_AXIS] [get_bd_intf_pins zynq/M_AXIS_DMA]
-  set_property -dict [ list \
-HDL_ATTRIBUTE.DEBUG {true} \
- ] [get_bd_intf_nets zynq_M_AXIS_DMA]
+connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_M_AXIS_DMA] [get_bd_intf_pins system_ila_0/SLOT_0_AXIS] [get_bd_intf_pins zynq/M_AXIS_DMA]
 
   # Create port connections
   connect_bd_net -net zynq_clock [get_bd_pins noc_counter_0001/clock] [get_bd_pins system_ila_0/clk] [get_bd_pins zynq/clock]
